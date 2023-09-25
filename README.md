@@ -12,3 +12,4 @@ Given a playlist URL, Playte finds which songs are missing from the music direct
 - Ability to update the YoutubeDL binary
 - Uses multithreading to download files much faster
 - Warns if the user tries to download songs using mobile data
+- Uses Material UI for consistent and pleasing UI
