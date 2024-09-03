@@ -21,7 +21,10 @@
 #-renamesourcefileattribute SourceFile
 
 #noinspection ShrinkerUnresolvedReference
+-dontobfuscate
+
 -keep class com.yausername.** { *; }
+-keep class org.apache.commons.compress.archivers.zip.** { *; }
 
 # Keep `Companion` object fields of serializable classes.
 # This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
