@@ -58,14 +58,13 @@ suspend fun downloadPlaylist(
         return
     }
 
+    appState.start()
     appState.changeTo(UIState.DOWNLOADING, "Downloading")
 
     val downloadPath = File(
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
         "Playte"
     )
-
-    appState.start()
 
     val jobs = toDownload.map { song ->
         cs.async {
