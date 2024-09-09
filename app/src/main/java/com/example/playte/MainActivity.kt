@@ -62,14 +62,11 @@ import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executors
-
 
 class MainActivity : ComponentActivity() {
-    var cs: CoroutineScope =
-        CoroutineScope(Executors.newFixedThreadPool(8).asCoroutineDispatcher())
+    var cs: CoroutineScope = CoroutineScope(SupervisorJob())
 
     var context = this
 
@@ -184,7 +181,7 @@ class MainActivity : ComponentActivity() {
                                     UIState.GETTINGPLAYLISTINFO -> {
                                         CircularProgressIndicator(
                                             modifier = Modifier.size(30.dp),
-                                            color = MaterialTheme.colorScheme.secondary,
+                                            color = MaterialTheme.colorScheme.primary,
                                             trackColor = MaterialTheme.colorScheme.surfaceVariant,
                                         )
                                         Text(
@@ -196,7 +193,7 @@ class MainActivity : ComponentActivity() {
                                     UIState.DOWNLOADING -> {
                                         CircularProgressIndicator(
                                             modifier = Modifier.size(30.dp),
-                                            color = MaterialTheme.colorScheme.secondary,
+                                            color = MaterialTheme.colorScheme.primary,
                                             trackColor = MaterialTheme.colorScheme.surfaceVariant,
                                         )
                                         Text(
@@ -256,7 +253,7 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.padding(vertical = 8.dp)
                                 )
                             }
-                            AnimatedVisibility(visible = appState.uiState == UIState.DOWNLOADING || appState.uiState == UIState.FINISHED) {
+                            AnimatedVisibility(visible = appState.uiState == UIState.DOWNLOADING) {
                                 Column(
                                     modifier = Modifier
                                         .fillMaxSize()

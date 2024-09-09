@@ -6,6 +6,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import com.example.playte.Entries
 import com.example.playte.PlaylistInfo
+import com.example.playte.utils.findMissingFiles
+import com.example.playte.utils.generatePLSFile
 import com.example.playte.utils.getPlaylistFilesInPlayteFolder
 import com.example.playte.utils.sanitizeFileName
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -17,6 +19,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import java.io.File
 
 suspend fun downloadPlaylist(
@@ -25,6 +29,11 @@ suspend fun downloadPlaylist(
     appState: AppState
 ) {
     appState.clear()
+
+    val downloadPath = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+        "Playte"
+    )
 
     if (url.isBlank()) {
         appState.changeTo(UIState.ERROR, "The link cannot be empty")
@@ -37,44 +46,32 @@ suspend fun downloadPlaylist(
 
     val localSongs = getPlaylistFilesInPlayteFolder(playlistInfo.title!!) // can title be null?
 
-    //if (localSongs == null) {
-    //
-    //    appState.uiState = UIState.LOCALPLAYLISTERROR
-    //    appState.info = "Error with local Music"
-    //    return
-    //}
-
-    val toDownload = arrayListOf<Entries>()
-
-    for (entry in playlistInfo.entries!!) {
-        if (!localSongs.contains(sanitizeFileName(entry.title))) {
-            toDownload.add(entry)
-            appState.updateProgressInfo(sanitizeFileName(entry.title),  0f)
-        }
-    }
+    val toDownload = findMissingFiles(playlistInfo.entries!!, localSongs, appState)
 
     if (toDownload.size == 0) {
         appState.changeTo(UIState.FINISHED, "Local playlist is up to date")
+        generatePLSFile(playlistInfo.entries, downloadPath, playlistInfo.title)
         return
     }
 
     appState.start()
     appState.changeTo(UIState.DOWNLOADING, "Downloading")
 
-    val downloadPath = File(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-        "Playte"
-    )
+    val semaphore = Semaphore(Runtime.getRuntime().availableProcessors() / 2)
 
     val jobs = toDownload.map { song ->
         cs.async {
-            downloadSong(song, playlistInfo.title, downloadPath, appState)
+            semaphore.withPermit {
+                downloadSong(song, playlistInfo.title, downloadPath, appState)
+            }
         }
     }
 
     jobs.awaitAll()
 
-    appState.changeTo(UIState.FINISHED, "Download finished")
+    generatePLSFile(playlistInfo.entries, downloadPath, playlistInfo.title)
+
+    appState.changeTo(UIState.FINISHED, "Download Finished")
 }
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalComposeUiApi::class)
@@ -98,6 +95,9 @@ fun checkPermissionAndDownload(
         }
         catch (e: Exception) {
             appState.changeTo(UIState.ERROR, e.message.toString())
+            Log.e("error", e.toString())
+            Log.e("error", e.stackTrace.toString())
+            Log.e("error", e.cause.toString())
             return@launch
         }
     }
@@ -114,12 +114,12 @@ fun downloadSong(song: Entries, playlistName: String, downloadPath: File, appSta
         .addOption("--embed-thumbnail")
         .addOption("--embed-metadata")
         .addOption("-x")
-        .addOption("--audio-format", "best")
+        .addOption("--audio-format", "aac")
         .addOption("--audio-quality", 0)
 
     YoutubeDL.getInstance().execute(request)
     { progress: Float, _: Long, _: String ->
-        Log.i("d", "${sanitizeFileName(song.title)} - $progress")
+        //Log.i("d", "${sanitizeFileName(song.title)} - $progress")
         appState.updateProgressInfo(sanitizeFileName(song.title), progress / 100f)
     }
     appState.downloaded++
