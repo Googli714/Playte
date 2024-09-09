@@ -80,7 +80,7 @@ private fun DownloadButtonPreview() {
     DownloadButton(false, onDownloadClick = {}, onClipboardClick = {}) {
         CircularProgressIndicator(
             modifier = Modifier.size(30.dp),
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
         Text(text = "Download", fontSize = 24.sp)

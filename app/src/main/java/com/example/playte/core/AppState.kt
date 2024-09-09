@@ -31,6 +31,9 @@ class AppState(uiState: UIState, info: String) {
     }
 
     fun progress(): Float {
+        if(downloaded == 0) {
+            return 0f
+        }
         return downloaded.toFloat() / toDownload
     }
 

@@ -1,8 +1,5 @@
 package com.example.playte
 
-import com.yausername.youtubedl_android.YoutubeDL
-import com.yausername.youtubedl_android.YoutubeDLRequest
-import com.yausername.youtubedl_android.YoutubeDLResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -38,13 +35,3 @@ data class Entries(
     val channel: String? = null,
     val thumbnails: List<Thumbnail>? = emptyList(),
 )
-
-fun getPlaylistResponse(url: String): YoutubeDLResponse {
-    val request = YoutubeDLRequest(url)
-    request.addOption("--compat-options", "no-youtube-unavailable-videos")
-    request.addOption("--flat-playlist")
-    request.addOption("-J")
-    request.addOption("-R", "1")
-    request.addOption("--socket-timeout", "5")
-    return YoutubeDL.getInstance().execute(request)
-}
