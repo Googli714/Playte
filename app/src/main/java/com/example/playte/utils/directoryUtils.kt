@@ -8,7 +8,7 @@ fun getPlaylistFilesInPlayteFolder(playlistName: String): List<String> {
 
     if (!playlistDirectory.exists())
     {
-        playlistDirectory.mkdir()
+        playlistDirectory.mkdirs()
     }
 
     return playlistDirectory.listFiles{f -> f.isFile}!!.map{ f -> f.nameWithoutExtension}
