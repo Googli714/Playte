@@ -2,6 +2,8 @@ package com.example.playte.utils
 
 import com.example.playte.Entries
 import com.example.playte.core.AppState
+import com.example.playte.core.ProgressInfo
+import com.example.playte.core.ProgressState
 
 
 fun findMissingFiles(entries: List<Entries>, localEntries: List<String>, appState: AppState) : ArrayList<Entries> {
@@ -10,7 +12,7 @@ fun findMissingFiles(entries: List<Entries>, localEntries: List<String>, appStat
     for (entry in entries) {
         if (!localEntries.contains(sanitizeFileName(entry.title))) {
             missingFiles.add(entry)
-            appState.updateProgressInfo(sanitizeFileName(entry.title), 0f)
+            appState.addProgressInfo(sanitizeFileName(entry.title), ProgressInfo(0.0f, ProgressState.INACTIVE, entry.thumbnails!!.first().url))
         }
     }
 

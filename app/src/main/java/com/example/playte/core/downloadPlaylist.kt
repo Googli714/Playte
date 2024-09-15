@@ -50,7 +50,7 @@ suspend fun downloadPlaylist(
 
     if (toDownload.size == 0) {
         appState.changeTo(UIState.FINISHED, "Local playlist is up to date")
-        generatePLSFile(playlistInfo.entries, downloadPath, playlistInfo.title)
+        generatePLSFile(playlistInfo.entries, playlistInfo.title)
         return
     }
 
@@ -62,14 +62,24 @@ suspend fun downloadPlaylist(
     val jobs = toDownload.map { song ->
         cs.async {
             semaphore.withPermit {
-                downloadSong(song, playlistInfo.title, downloadPath, appState)
+                try {
+                    appState.updateProgressInfo(sanitizeFileName(song.title), 0.0f, ProgressState.DOWNLOADING)
+                    downloadSong(song, playlistInfo.title, downloadPath, appState)
+                }
+                catch (e: Exception) {
+                    Log.i("Error" , e.message.toString())
+                    Log.i("Error" , e.stackTrace.toString())
+                    Log.i("Error" , e.cause.toString())
+                    appState.updateProgressInfo(sanitizeFileName(song.title), 1.0f, ProgressState.ERRORED)
+                }
+
             }
         }
     }
 
     jobs.awaitAll()
 
-    generatePLSFile(playlistInfo.entries, downloadPath, playlistInfo.title)
+    generatePLSFile(playlistInfo.entries, playlistInfo.title)
 
     appState.changeTo(UIState.FINISHED, "Download Finished")
 }
@@ -123,4 +133,5 @@ fun downloadSong(song: Entries, playlistName: String, downloadPath: File, appSta
         appState.updateProgressInfo(sanitizeFileName(song.title), progress / 100f)
     }
     appState.downloaded++
+    appState.updateProgressInfo(sanitizeFileName(song.title), 1.0f, ProgressState.FINISSHED)
 }

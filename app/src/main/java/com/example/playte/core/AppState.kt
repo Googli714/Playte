@@ -11,21 +11,28 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 class AppState(uiState: UIState, info: String) {
     var uiState by mutableStateOf(value = uiState)
     var info by mutableStateOf(value = info)
-    var progressInfo: SnapshotStateMap<String, Float> = mutableStateMapOf()
+    var progressInfos: SnapshotStateMap<String, ProgressInfo> = mutableStateMapOf()
     var toDownload by mutableStateOf(0)
     var downloaded by mutableStateOf(0)
 
-    fun updateProgressInfo(key: String, value: Float) {
-        progressInfo[key] = value
+    fun updateProgressInfo(key: String, progress: Float, progressState: ProgressState? = null) {
+        progressInfos[key]!!.progress = progress
+        if(progressState != null) {
+            progressInfos[key]!!.progressState = progressState
+        }
+    }
+
+    fun addProgressInfo(key: String, progressInfo: ProgressInfo) {
+        progressInfos[key] = progressInfo
     }
 
     fun start() {
-        toDownload = progressInfo.size
+        toDownload = progressInfos.size
         downloaded = 0
     }
 
     fun clear() {
-        progressInfo.clear()
+        progressInfos.clear()
         toDownload = 0
         downloaded = 0
     }

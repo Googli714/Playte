@@ -1,9 +1,15 @@
 package com.example.playte.utils
 
+import android.os.Environment
 import com.example.playte.Entries
 import java.io.File
 
-fun generatePLSFile(entries: List<Entries>, downloadPath: File, playlistName: String) {
+fun generatePLSFile(entries: List<Entries>, playlistName: String) {
+    val downloadPath = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+        "Playte"
+    )
+
     val sb = StringBuilder()
 
     sb.appendLine("[playlist]")

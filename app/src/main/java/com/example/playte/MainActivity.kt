@@ -271,7 +271,7 @@ class MainActivity : ComponentActivity() {
                                         strokeCap = StrokeCap.Round
                                     )
                                     Divider(modifier = Modifier.padding(bottom = 6.dp))
-                                    ProgressIndicators(progressInfos = appState.progressInfo)
+                                    ProgressIndicators(progressInfos = appState.progressInfos)
                                 }
                             }
                         }
